@@ -1,8 +1,7 @@
-1. 如果使用 std::string 的话会发生复制构造，会占用更多的内存空间，如果使用 std::string& 的话无法对输入常量字符串的情况进行构造，因此不能使用无 const 的情况
+1. 如果使用 std::string 的话会发生复制构造，会占用更多的内存空间，如果使用 std::string& 无法绑定到临时对象，也无法对输入常量字符串的情况进行构造，因此不能使用无 const 的情况
 2. unique_ptr 可以自动释放内存内容，不需要写delete，不需要担心内存泄漏，并且无需担心空指针，并且作为支持移动的容器（如 std::vector）中的元素类型，这些容器持有指向动态分配对象的指针，即可以对 deque<Token> 类型的容器进行指针的访问； 如果用*Token就会导致内存泄漏
 3. token.h中声明重载<<接受const Token&并在token.cpp中定义其返回 token.toSpring()，而token.toSpring()则会根据TokenType类型的type判断token的类型返回相应的string类型的文本
 4. 通过调用error.h中的SyntaxError类 来判断runtime_error
-    如果pos大于输入的文本的大小则 throw SyntaxError("Unexpected end of string literal"); 
-    如果出现非t/f的字符出现在#后面则 throw SyntaxError("Unexpected character after #");
-5. deque在前端增删元素的效率更高，内存管理更灵活，避免大内存复制的开销
+    tokenizer.cpp在检测到错误时抛出SyntaxError，然后在main.cpp 用try-catch 捕获 std::runtime_error& 打印错误后不退出继续运行
+5. deque在前端增删元素的效率更高，由于deque不是连续存储的，内存管理更灵活，避免大内存复制的开销
     

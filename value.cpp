@@ -1,7 +1,7 @@
 #include <iomanip>
 #include <sstream>
 #include <typeinfo>
-#include "value.h"
+#include "./value.h"
 
 std::string BooleanValue::toString() const{
     if (value) {
@@ -34,7 +34,7 @@ std::string NilValue::toString() const {
 std::string SymbolValue::toString() const {
     return value;
 }
-//for conv
+//check valuetype
 bool PairValue::isNil(ValuePtr val) const {
     return typeid(*val) == typeid(NilValue);
 }
