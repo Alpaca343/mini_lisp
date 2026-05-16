@@ -62,7 +62,7 @@ ValuePtr Parser::parse() {
 
 ValuePtr Parser::parseTails() {
     if (tokens.empty()) {
-        throw SyntaxError("Expected ')'");
+        throw SyntaxError("Unexpected end");
     }
     if (tokens.front()->getType() == TokenType::RIGHT_PAREN) {
         tokens.pop_front();
@@ -70,7 +70,7 @@ ValuePtr Parser::parseTails() {
     }
     auto car = this->parse();
     if (tokens.empty()) {
-        throw SyntaxError("Expected ')'");
+        throw SyntaxError("Unexpected end");
     }
     if (tokens.front()->getType() == TokenType::DOT) {
         tokens.pop_front();

@@ -2,14 +2,33 @@
 #define VALUE_H
 #include <string>
 #include <memory>
-
+#include <vector>
+#include <optional>
+#include "./error.h"
 
 // 你的代码
+
+
 class Value {
 public:
     Value() = default;
     virtual ~Value() = default;
     virtual std::string toString() const = 0;
+    virtual bool isPair() const {
+        return false;
+    }
+    virtual bool isNil() const {
+        return false;
+    }
+    virtual bool isSelfEvaluating() const {
+        return false;
+    }
+    virtual std::vector<std::shared_ptr<Value>> toVector() const {
+        throw LispError("Cannot convert to vec");
+    }
+    virtual std::optional<std::string> asSymbol() const {
+        return std::nullopt;
+    }
 };
 
 using ValuePtr = std::shared_ptr<Value>;
@@ -20,6 +39,9 @@ class BooleanValue : public Value {
 public:
     BooleanValue(bool value) : value{value} {}
     std::string toString() const;
+    bool isSelfEvaluating() const override{
+        return true;
+    }
 };
 
 class NumericValue : public Value {
@@ -28,6 +50,9 @@ class NumericValue : public Value {
 public:
     NumericValue(double value) : value{value} {}
     std::string toString() const;
+    bool isSelfEvaluating() const override {
+        return true;
+    }
 };
 
 class StringValue : public Value {
@@ -36,6 +61,9 @@ class StringValue : public Value {
 public:
     StringValue(std::string value) : value{value} {}
     std::string toString() const;
+    bool isSelfEvaluating() const override {
+        return true;
+    }
 };
 
 class NilValue : public Value {
@@ -43,6 +71,10 @@ class NilValue : public Value {
 public:
     NilValue() = default;
     std::string toString() const;
+    bool isNil() const override{
+        return true;
+    }
+    std::vector<ValuePtr> toVector() const override;
 };
 
 class SymbolValue : public Value {
@@ -51,21 +83,27 @@ class SymbolValue : public Value {
 public:
     SymbolValue(std::string value) : value{value} {}
     std::string toString() const;
+    std::optional<std::string> asSymbol() const override;
+
 };
 
 class PairValue : public Value {
     ValuePtr leftval;
     ValuePtr rightval;
-
-
 public:
     PairValue(ValuePtr left, ValuePtr right)
         : leftval{left}, rightval{right} {}
-    bool isNil(ValuePtr val) const;
-    bool isPair(ValuePtr val) const;
+
     std::string toString() const;
     std::string toString2() const;
+    bool isPair() const override{
+        return true;
+    }
+    ValuePtr getLeft() const{return leftval;}
+    ValuePtr getRight() const{return rightval;}
+    std::vector<ValuePtr> toVector() const override;
 };
+
 
 
 #endif

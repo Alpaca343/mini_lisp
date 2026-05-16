@@ -34,23 +34,15 @@ std::string NilValue::toString() const {
 std::string SymbolValue::toString() const {
     return value;
 }
-//check valuetype
-bool PairValue::isNil(ValuePtr val) const {
-    return typeid(*val) == typeid(NilValue);
-}
-
-bool PairValue::isPair(ValuePtr val) const {
-    return typeid(*val) == typeid(PairValue);
-}
 
 std::string PairValue::toString() const {
     std::string result{};
     result += "(";
     result += leftval->toString();
-    if (isNil(rightval)) {
+    if (this->rightval->isNil()) {
         result += ")";
     }
-    else if (isPair(rightval)) {
+    else if (this->rightval->isPair()) {
         result += " ";
         auto& rightPair = static_cast<const PairValue&>(*rightval);
         result += rightPair.toString2();
@@ -66,9 +58,9 @@ std::string PairValue::toString() const {
 std::string PairValue::toString2() const {
     std::string result{};
     result += leftval->toString();
-    if (isNil(rightval)) {
+    if (this->rightval->isNil()) {
         result += ")";
-    } else if (isPair(rightval)) {
+    } else if (this->rightval->isPair()) {
         result += " ";
         auto& rightPair = static_cast<const PairValue&>(*rightval);
         result += rightPair.toString2();
@@ -78,4 +70,27 @@ std::string PairValue::toString2() const {
         result += ")";
     }
     return result;
+}
+
+std::optional<std::string> SymbolValue::asSymbol() const{
+    return {value};
+}
+
+std::vector<ValuePtr> PairValue::toVector() const {
+    std::vector<ValuePtr> list;
+    list.push_back(leftval);
+    
+    if (rightval->isNil()) {
+        return list;
+    } else if (rightval->isPair()) {
+        auto nextList = rightval->toVector();  // 递归调用
+        list.insert(list.end(), nextList.begin(), nextList.end());
+        return list;
+    } else {
+        throw LispError("Improper list: dotted pair");
+    }
+
+}
+std::vector<ValuePtr> NilValue::toVector() const {
+    return {};
 }
