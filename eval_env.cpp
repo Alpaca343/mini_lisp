@@ -1,5 +1,12 @@
 #include "eval_env.h"
 
+EvalEnv::EvalEnv() {
+    for (const auto& pair : getBuiltins()) {
+        symbolTable[pair.first] =
+            std::make_shared<BuiltinProcValue>(pair.second);
+    }
+}
+
 ValuePtr EvalEnv::eval(ValuePtr expr) {
     if (expr->isSelfEvaluating()) {
         return expr;
@@ -26,7 +33,13 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
                 throw LispError("Malformed define.");
             }
         } else {
-            throw LispError("Unimplemented");
+            auto calcVal = evalList(expr); //把列表中的每个expr都求值一遍
+            if (calcVal.empty()) {
+                throw LispError("Empty list");
+            }
+            ValuePtr proc = calcVal[0];
+            std::vector<ValuePtr> args(calcVal.begin() + 1, calcVal.end());
+            return apply(proc, args);
         }
     } else {
         throw LispError("Unimplemented");
@@ -39,4 +52,20 @@ ValuePtr EvalEnv::lookup(std::string name) {
         return it->second;
     }
     return nullptr;
+}
+
+ValuePtr EvalEnv::apply(ValuePtr proc, std::vector<ValuePtr> args) {
+    if (auto fPtr = dynamic_pointer_cast<BuiltinProcValue>(proc)) {
+        auto result = fPtr->getFunc()(args);
+        return result;
+    } else {
+        throw LispError("Unimplemented");
+    }
+}
+
+std::vector<ValuePtr> EvalEnv::evalList(ValuePtr expr) {
+    std::vector<ValuePtr> result;
+    std::ranges::transform(expr->toVector(), std::back_inserter(result),
+                           [this](ValuePtr v) { return this->eval(v); });
+    return result;
 }

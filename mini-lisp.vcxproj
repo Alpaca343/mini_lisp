@@ -78,6 +78,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="builtin.cpp" />
     <ClCompile Include="eval_env.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="parser.cpp" />
@@ -86,6 +87,7 @@
     <ClCompile Include="value.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="builtin.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="eval_env.h" />
     <ClInclude Include="parser.h" />

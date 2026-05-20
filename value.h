@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <optional>
+#include <iostream>
 #include "./error.h"
 
 // 你的代码
@@ -23,10 +24,16 @@ public:
     virtual bool isSelfEvaluating() const {
         return false;
     }
+    virtual bool isNumber() const {
+        return false;
+    }
     virtual std::vector<std::shared_ptr<Value>> toVector() const {
         throw LispError("Cannot convert to vec");
     }
     virtual std::optional<std::string> asSymbol() const {
+        return std::nullopt;
+    }
+    virtual std::optional<double> asNumber() const {
         return std::nullopt;
     }
 };
@@ -53,6 +60,10 @@ public:
     bool isSelfEvaluating() const override {
         return true;
     }
+    bool isNumber() const override{
+        return true;
+    }
+    std::optional<double> asNumber() const override;
 };
 
 class StringValue : public Value {
@@ -104,6 +115,18 @@ public:
     std::vector<ValuePtr> toVector() const override;
 };
 
+using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
 
+class BuiltinProcValue : public Value {
+    BuiltinFuncType* func;
+
+public:
+    
+    BuiltinProcValue(BuiltinFuncType* f) : func(f) {}
+    std::string toString() const override;
+    BuiltinFuncType* getFunc() {
+        return func;
+    }
+};
 
 #endif

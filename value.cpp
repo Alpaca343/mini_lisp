@@ -71,9 +71,14 @@ std::string PairValue::toString2() const {
     }
     return result;
 }
-
+std::string BuiltinProcValue::toString() const {
+    return "#<procedure>";
+}
 std::optional<std::string> SymbolValue::asSymbol() const{
-    return {value};
+    return value;
+}
+std::optional<double> NumericValue::asNumber() const {
+    return value;
 }
 
 std::vector<ValuePtr> PairValue::toVector() const {
@@ -94,3 +99,5 @@ std::vector<ValuePtr> PairValue::toVector() const {
 std::vector<ValuePtr> NilValue::toVector() const {
     return {};
 }
+
+
