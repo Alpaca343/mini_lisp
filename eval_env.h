@@ -5,6 +5,7 @@
 #include <iterator>
 #include "./value.h"
 #include "./builtin.h"
+#include "./forms.h"
 
 class EvalEnv {
     std::unordered_map<std::string, ValuePtr> symbolTable;
@@ -12,6 +13,7 @@ class EvalEnv {
 public:
     EvalEnv();
     ValuePtr eval(ValuePtr expr);
+    void define(const std::string& name, ValuePtr value);
     ValuePtr lookup(std::string name);
     ValuePtr apply(ValuePtr proc, std::vector<ValuePtr> args);
     std::vector<ValuePtr> evalList(ValuePtr expr);

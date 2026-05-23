@@ -21,29 +21,28 @@ ValuePtr EvalEnv::eval(ValuePtr expr) {
     } else if (expr->isPair()) {
         using namespace std::literals; //使用 s 后缀
         std::vector<ValuePtr> v = expr->toVector();
-        if (v[0]->asSymbol() == "define"s) {
-            if (v.size() != 3) {
-                throw LispError("define requires exactly 2 arguments");
+        if (auto name = v[0]->asSymbol()) {
+            const auto& forms = getSpecialForms();
+            auto it = forms.find(*name);
+            if (it != forms.end()) {
+                std::vector<ValuePtr> args(v.begin() + 1, v.end());
+                return it->second(args, *this);
             }
-            if (auto name = v[1]->asSymbol()) {
-                ValuePtr val = eval(v[2]);
-                symbolTable[*name] = val;
-                return std::make_shared<NilValue>();
-            } else {
-                throw LispError("Malformed define.");
-            }
-        } else {
-            auto calcVal = evalList(expr); //把列表中的每个expr都求值一遍
-            if (calcVal.empty()) {
-                throw LispError("Empty list");
-            }
-            ValuePtr proc = calcVal[0];
-            std::vector<ValuePtr> args(calcVal.begin() + 1, calcVal.end());
-            return apply(proc, args);
         }
+        auto calcVal = evalList(expr); //把列表中的每个expr都求值一遍
+        if (calcVal.empty()) {
+            throw LispError("Empty list");
+        }
+        ValuePtr proc = calcVal[0];
+        std::vector<ValuePtr> args(calcVal.begin() + 1, calcVal.end());
+        return apply(proc, args);
     } else {
         throw LispError("Unimplemented");
     }
+}
+
+void EvalEnv::define(const std::string& name, ValuePtr value) {
+    symbolTable[name] = value;
 }
 
 ValuePtr EvalEnv::lookup(std::string name) {

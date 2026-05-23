@@ -21,6 +21,9 @@ public:
     virtual bool isNil() const {
         return false;
     }
+    virtual bool isBool() const {
+        return false;
+    }
     virtual bool isSelfEvaluating() const {
         return false;
     }
@@ -48,6 +51,12 @@ public:
     std::string toString() const;
     bool isSelfEvaluating() const override{
         return true;
+    }
+    bool isBool() const override{
+        return true;
+    }
+    bool getValue() {
+        return value;
     }
 };
 
@@ -117,16 +126,28 @@ public:
 
 using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
 
+
 class BuiltinProcValue : public Value {
     BuiltinFuncType* func;
 
 public:
     
     BuiltinProcValue(BuiltinFuncType* f) : func(f) {}
-    std::string toString() const override;
+    std::string toString() const override; // 返回 #<procedure>
     BuiltinFuncType* getFunc() {
         return func;
     }
+};
+
+class LambdaValue : public Value {
+private:
+    std::vector<std::string> params;
+    std::vector<ValuePtr> body;
+    // [...]
+public:
+    LambdaValue(const std::vector<std::string>& params_, const std::vector<ValuePtr>& body_)
+        : params(params_), body(body_) {}
+    std::string toString() const override;  // 返回 #<procedure>
 };
 
 #endif

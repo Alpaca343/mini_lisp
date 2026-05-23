@@ -74,6 +74,9 @@ std::string PairValue::toString2() const {
 std::string BuiltinProcValue::toString() const {
     return "#<procedure>";
 }
+std::string LambdaValue::toString() const {
+    return "#<procedure>";
+}
 std::optional<std::string> SymbolValue::asSymbol() const{
     return value;
 }
