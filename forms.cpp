@@ -10,10 +10,13 @@ const std::unordered_map<std::string, SpecialFormType*>& getSpecialForms() {
 }
 
 ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
-    if (args.size() != 2) {
+    /* if (args.size() != 2) {
         throw LispError("define requires exactly 2 arguments");
-    }
+    }*/
     if (auto name = args[0]->asSymbol()) {
+        if (args.size() != 2) {
+            throw LispError("define requires exactly 2 arguments");
+        }
         ValuePtr val = env.eval(args[1]);
         env.define(*name, val);
         return std::make_shared<NilValue>();
@@ -22,8 +25,10 @@ ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 
         if (auto funcName = form->getLeft()->asSymbol()) {
             ValuePtr paramList = form->getRight();
-            ValuePtr lambdaValue = env.eval(makeList(
-                {std::make_shared<SymbolValue>("lambda"), paramList, args[1]}));
+            std::vector<ValuePtr> lambdaItems = {
+                std::make_shared<SymbolValue>("lambda"), paramList};
+            lambdaItems.insert(lambdaItems.end(), args.begin() + 1, args.end());
+            ValuePtr lambdaValue = env.eval(makeList(lambdaItems));
             env.define(*funcName, lambdaValue);
             return std::make_shared<NilValue>();
         } else {
@@ -119,5 +124,7 @@ ValuePtr lambdaForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     for (int i = 1; i < args.size(); ++i) {
         body.push_back(args[i]);
     }
-    return make_shared<LambdaValue>(params, body);
+
+    auto envPtr = env.shared_from_this();
+    return make_shared<LambdaValue>(params, body, envPtr);
 }

@@ -26,6 +26,9 @@ ValuePtr evenq(const std::vector<ValuePtr>& params);
 ValuePtr zeroq(const std::vector<ValuePtr>& params);
 ValuePtr oddq(const std::vector<ValuePtr>& params);
 
+//pair and list
+ValuePtr car(const std::vector<ValuePtr>& params);
+ValuePtr cdr(const std::vector<ValuePtr>& params);
 
 
 #endif  // !BUILTIN_H

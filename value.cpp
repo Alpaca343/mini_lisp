@@ -2,6 +2,7 @@
 #include <sstream>
 #include <typeinfo>
 #include "./value.h"
+#include "./eval_env.h"
 
 std::string BooleanValue::toString() const{
     if (value) {
@@ -103,4 +104,16 @@ std::vector<ValuePtr> NilValue::toVector() const {
     return {};
 }
 
+ValuePtr LambdaValue::apply(const std::vector<ValuePtr>& args) {
+    if (args.size() != params.size()) {
+        throw LispError("Lambda: wrong number of arguments");
+    }
 
+    auto childEnv = env->createChild(params, args);
+
+    ValuePtr result = nullptr;
+    for (const auto& expr : body) {
+        result = childEnv->eval(expr);
+    }
+    return result;
+}

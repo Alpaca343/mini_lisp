@@ -11,7 +11,7 @@ using SpecialFormType = ValuePtr(const std::vector<ValuePtr>&, EvalEnv&);
 
 const std::unordered_map<std::string, SpecialFormType*>& getSpecialForms();
 
-std::vector<std::string> extractParams(ValuePtr paramList);
+std::vector<std::string> extractParams(std::vector<ValuePtr> paramVec);
 
 ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env);
 ValuePtr quoteForm(const std::vector<ValuePtr>& args, EvalEnv& env);

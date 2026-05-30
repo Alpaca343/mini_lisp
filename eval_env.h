@@ -5,18 +5,28 @@
 #include <iterator>
 #include "./value.h"
 #include "./builtin.h"
-#include "./forms.h"
 
-class EvalEnv {
+
+class EvalEnv : public std::enable_shared_from_this<EvalEnv> {
     std::unordered_map<std::string, ValuePtr> symbolTable;
+    std::shared_ptr<EvalEnv> parent;
+    ValuePtr lookup(std::string name);
+    EvalEnv();
+    explicit EvalEnv(std::shared_ptr<EvalEnv> parent);
 
 public:
-    EvalEnv();
+    static std::shared_ptr<EvalEnv> createGlobal();
+
+    std::shared_ptr<EvalEnv> createChild(
+        const std::vector<std::string>& params,
+        const std::vector<ValuePtr>& args);
+
     ValuePtr eval(ValuePtr expr);
     void define(const std::string& name, ValuePtr value);
-    ValuePtr lookup(std::string name);
     ValuePtr apply(ValuePtr proc, std::vector<ValuePtr> args);
     std::vector<ValuePtr> evalList(ValuePtr expr);
+    ValuePtr lookupBinding(const std::string& name) const;
+
 };
 
 #endif

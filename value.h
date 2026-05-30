@@ -8,7 +8,7 @@
 #include "./error.h"
 
 // 你的代码
-
+class EvalEnv; 
 
 class Value {
 public:
@@ -143,11 +143,13 @@ class LambdaValue : public Value {
 private:
     std::vector<std::string> params;
     std::vector<ValuePtr> body;
-    // [...]
+    std::shared_ptr<EvalEnv> env;
+
 public:
-    LambdaValue(const std::vector<std::string>& params_, const std::vector<ValuePtr>& body_)
-        : params(params_), body(body_) {}
+    LambdaValue(const std::vector<std::string>& params_, const std::vector<ValuePtr>& body_, const std::shared_ptr<EvalEnv> env_)
+        : params(params_), body(body_), env(env_) {}
     std::string toString() const override;  // 返回 #<procedure>
+    ValuePtr apply(const std::vector<ValuePtr>& args);
 };
 
 #endif

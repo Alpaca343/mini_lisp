@@ -17,6 +17,8 @@ const std::unordered_map<std::string, BuiltinFuncType*>& getBuiltins() {
         {"even?", evenq},
         {"odd?", oddq},
         {"zero?", zeroq},
+        {"car", car},
+        {"cdr", cdr},
     };
     return m;
 }
@@ -248,4 +250,27 @@ ValuePtr oddq(const std::vector<ValuePtr>& params) {
 
 ValuePtr zeroq(const std::vector<ValuePtr>& params) {
     return unaryPredicate(params, "zero?", [](double x) { return x == 0.0; });
+}
+
+// 对子与列表操作库
+ValuePtr car(const std::vector<ValuePtr>& params) {
+    if (params.size() != 1) {
+        throw LispError("car: expect 1 argument");
+    }
+    if (auto pair = static_pointer_cast<PairValue>(params[0])) {
+        return pair->getLeft();
+    } else {
+        throw LispError("expect a pair");
+    }
+}
+
+ValuePtr cdr(const std::vector<ValuePtr>& params) {
+    if (params.size() != 1) {
+        throw LispError("car: expect 1 argument");
+    }
+    if (auto pair = static_pointer_cast<PairValue>(params[0])) {
+        return pair->getRight();
+    } else {
+        throw LispError("expect a pair");
+    }
 }
