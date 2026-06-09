@@ -98,7 +98,6 @@ std::vector<ValuePtr> PairValue::toVector() const {
     } else {
         throw LispError("Improper list: dotted pair");
     }
-
 }
 std::vector<ValuePtr> NilValue::toVector() const {
     return {};

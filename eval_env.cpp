@@ -66,7 +66,7 @@ ValuePtr EvalEnv::lookup(std::string name) {
 
 ValuePtr EvalEnv::apply(ValuePtr proc, std::vector<ValuePtr> args) {
     if (auto fPtr = dynamic_pointer_cast<BuiltinProcValue>(proc)) {
-        auto result = fPtr->getFunc()(args);
+        auto result = fPtr->getFunc()(args , *this);
         return result;
     } else if (auto fPtr = dynamic_pointer_cast<LambdaValue>(proc)) {
         return fPtr->apply(args);

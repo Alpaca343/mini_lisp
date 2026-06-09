@@ -30,6 +30,15 @@ public:
     virtual bool isNumber() const {
         return false;
     }
+    virtual bool isSymbol() const {
+        return false;
+    }
+    virtual bool isString() const {
+        return false;
+    }
+    virtual bool isProcedure() const {
+        return false;
+    }
     virtual std::vector<std::shared_ptr<Value>> toVector() const {
         throw LispError("Cannot convert to vec");
     }
@@ -84,6 +93,9 @@ public:
     bool isSelfEvaluating() const override {
         return true;
     }
+    bool isString() const override{
+        return true;
+    }
 };
 
 class NilValue : public Value {
@@ -104,7 +116,9 @@ public:
     SymbolValue(std::string value) : value{value} {}
     std::string toString() const;
     std::optional<std::string> asSymbol() const override;
-
+    bool isSymbol() const override{
+        return true;
+    }
 };
 
 class PairValue : public Value {
@@ -124,7 +138,7 @@ public:
     std::vector<ValuePtr> toVector() const override;
 };
 
-using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&);
+using BuiltinFuncType = ValuePtr(const std::vector<ValuePtr>&, EvalEnv&);
 
 
 class BuiltinProcValue : public Value {
@@ -136,6 +150,9 @@ public:
     std::string toString() const override; // 返回 #<procedure>
     BuiltinFuncType* getFunc() {
         return func;
+    }
+    bool isProcedure() const override{
+        return true;
     }
 };
 
@@ -150,6 +167,9 @@ public:
         : params(params_), body(body_), env(env_) {}
     std::string toString() const override;  // 返回 #<procedure>
     ValuePtr apply(const std::vector<ValuePtr>& args);
+    bool isProcedure() const override {
+        return true;
+    }
 };
 
 #endif
