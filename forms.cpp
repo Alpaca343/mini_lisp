@@ -1,6 +1,8 @@
 #include "./forms.h"
 #include "./eval_env.h"
 
+static ValuePtr circleUnquote(ValuePtr expr, EvalEnv& env);
+
 const std::unordered_map<std::string, SpecialFormType*>& getSpecialForms() {
     static std::unordered_map<std::string, SpecialFormType*> m = {
         {"define", defineForm}, {"quote", quoteForm}, {"if", ifForm}, {"and", andForm}, 
@@ -103,7 +105,7 @@ ValuePtr orForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     return std::make_shared<BooleanValue>(false);
 }
 
-std::vector<std::string> extractParams(std::vector<ValuePtr> paramVec) {
+static std::vector<std::string> extractParams(std::vector<ValuePtr> paramVec) {
     std::vector<std::string> params;
 
     for (const auto& p : paramVec) {
@@ -253,7 +255,7 @@ ValuePtr quasiquoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     return circleUnquote(args[0], env);
 }
 //用递归来处理列表中的的unquote
-ValuePtr circleUnquote(ValuePtr expr, EvalEnv& env) {
+static ValuePtr circleUnquote(ValuePtr expr, EvalEnv& env) {
     if (expr->isPair()) {
         auto pairVec = expr->toVector();
         auto pair = std::dynamic_pointer_cast<PairValue>(expr);

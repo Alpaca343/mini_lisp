@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <vector>
 
 #include "./tokenizer.h"
 #include "./value.h"
@@ -41,14 +42,44 @@ static bool isBalanced(const std::string& input) {
     return depth <= 0 && !inString;
 }
 
-//计算已累积输入中的括号深度，用于自动缩进
-static int calcDepth(const std::string& input) {
-    int depth = 0;
-    for (char c : input) {
-        if (c == '(') depth++;
-        else if (c == ')') depth--;
+//计算缩进位置：对齐到最后一个未闭合括号内的第一个参数列
+static int calcIndent(const std::string& input) {
+    std::vector<size_t> stack;
+    bool inString = false;
+    for (size_t i = 0; i < input.size(); ++i) {
+        char c = input[i];
+        if (inString) {
+            if (c == '"') inString = false;
+        } else if (c == ';') {
+            while (i < input.size() && input[i] != '\n') i++;
+        } else if (c == '"') {
+            inString = true;
+        } else if (c == '(') {
+            stack.push_back(i);
+        } else if (c == ')' && !stack.empty()) {
+            stack.pop_back();
+        }
     }
-    return std::max(0, depth);
+    if (stack.empty()) return 0;
+
+    size_t lastOpen = stack.back();
+    size_t pos = lastOpen + 1;
+    // 跳过运算符名（第一个符号），定位到第一个参数
+    while (pos < input.size() && (input[pos] == ' ' || input[pos] == '\n')) pos++;
+    while (pos < input.size() && input[pos] != ' ' && input[pos] != '\n' &&
+           input[pos] != '(' && input[pos] != ')' && input[pos] != '"' && input[pos] != ';') {
+        pos++;
+    }
+    while (pos < input.size() && (input[pos] == ' ' || input[pos] == '\n')) pos++;
+
+    // 将绝对位置转换为当前行内的列数
+    auto column = [&](size_t p) -> int {
+        size_t ls = input.rfind('\n', p);
+        return (ls == std::string::npos) ? (int)p : (int)(p - ls - 1);
+    };
+
+    if (pos < input.size() && input[pos] != ')') return column(pos);
+    return column(lastOpen) + 2;  // 没有参数时从 ( 缩进 2 格
 }
 
 //用来执行两种模式下都要进行的操作
@@ -76,8 +107,8 @@ int main(int argc, char* argv[]) {
         while (true) {
             if (accumulated.empty()) {
                 std::cout << ">>> ";
-            } else {
-                int indent = calcDepth(accumulated) * 2;
+            } else {  //判断缩进大小
+                int indent = calcIndent(accumulated);
                 std::cout << "... " << std::string(indent, ' ');
             }
             std::string line;
