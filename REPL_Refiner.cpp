@@ -89,6 +89,7 @@ static std::string colorizeVal(ValuePtr val) {
 }
 
 // ========== replxx 输入语法高亮 ==========
+// 识别单词
 static bool isWordChar(char c) {
     return std::isalnum(static_cast<unsigned char>(c)) ||
            c == '-' || c == '?' || c == '!' || c == '*' || c == '/' ||
@@ -108,6 +109,8 @@ static Replxx::Color colorForWord(const std::string& word) {
     return Replxx::Color::DEFAULT;
 }
 
+
+// 通过修改replxx_impl.cxx来中的matching_paren改变replxx的默认的括号匹配高亮使其更加符合vs用户的使用习惯
 static void highlightCallback(std::string const& input, Replxx::colors_t& colors) {
     size_t i = 0;
     while (i < input.size() && i < colors.size()) {
@@ -270,7 +273,7 @@ static int calcIndent(const std::string& input) {
 }
 
 // ========== 交互式 REPL 入口 ==========
-void runInteractiveRepl(std::shared_ptr<EvalEnv> env) {
+void runRepl(std::shared_ptr<EvalEnv> env) {
     enableAnsi();
     Replxx rx;
 

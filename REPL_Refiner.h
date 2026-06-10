@@ -4,6 +4,6 @@
 #include <memory>
 #include "eval_env.h"
 
-void runInteractiveRepl(std::shared_ptr<EvalEnv> env);
+void runRepl(std::shared_ptr<EvalEnv> env);
 
 #endif
