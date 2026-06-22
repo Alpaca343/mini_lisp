@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(g++ *)",
-      "Bash(cd *)"
+      "Bash(g++ -std=c++20 -c -I lib/replxx/include -I lib/replxx/src builtin.cpp -o builtin.o)",
+      "Bash(g++ -std=c++20 -O2 -I lib/replxx/include -I lib/replxx/src -DREPLXX_STATIC builtin.cpp eval_env.cpp forms.cpp main.cpp parser.cpp REPL_Refiner.cpp token.cpp tokenizer.cpp value.cpp lib/replxx/src/replxx.cxx lib/replxx/src/replxx_impl.cxx lib/replxx/src/conversion.cxx lib/replxx/src/escape.cxx lib/replxx/src/history.cxx lib/replxx/src/prompt.cxx lib/replxx/src/terminal.cxx lib/replxx/src/util.cxx lib/replxx/src/windows.cxx lib/replxx/src/ConvertUTF.cpp lib/replxx/src/wcwidth.cpp -o mini-lisp.exe -lws2_32)"
     ]
   }
 }

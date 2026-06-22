@@ -18,7 +18,7 @@ std::string NumericValue::toString() const {
         return std::to_string(value);
     }
     else {
-        return std::to_string((int)value);
+        return std::to_string(static_cast<int>(value));
     }
 }
 

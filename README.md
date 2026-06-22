@@ -1,3 +1,55 @@
+# Mini-Lisp 解释器
+
+一个基于 C++20 的 Scheme/Lisp 子集解释器，支持交互式 REPL 和文件执行模式。
+
+## 基本功能
+
+- **数值运算**：`+` `-` `*` `/` `abs` `expt` `quotient` `remainder` `modulo`
+- **比较运算**：`=` `>` `<` `>=` `<=` `even?` `odd?` `zero?`
+- **逻辑运算**：`and` `or` `not`
+- **列表操作**：`car` `cdr` `cons` `list` `append` `length`
+- **高阶函数**：`map` `filter` `reduce` `apply`
+- **特殊形式**：`define` `lambda` `if` `cond` `begin` `let` `quote` `quasiquote`
+- **类型检查**：`atom?` `boolean?` `integer?` `number?` `list?` `null?` `pair?` `procedure?` `string?` `symbol?`
+- **其他**：`print` `display` `displayln` `eval` `exit` `newline` `error`
+
+## 编译
+
+### Visual Studio（推荐）
+
+打开 `mini-lisp.sln`，按 `Ctrl+Shift+B` 编译。
+
+### MinGW / g++
+
+```bash
+g++ -std=c++20 -O2 \
+  -I lib/replxx/include -I lib/replxx/src \
+  -DREPLXX_STATIC \
+  builtin.cpp eval_env.cpp forms.cpp main.cpp parser.cpp \
+  REPL_Refiner.cpp token.cpp tokenizer.cpp value.cpp \
+  lib/replxx/src/replxx.cxx lib/replxx/src/replxx_impl.cxx \
+  lib/replxx/src/conversion.cxx lib/replxx/src/escape.cxx \
+  lib/replxx/src/history.cxx lib/replxx/src/prompt.cxx \
+  lib/replxx/src/terminal.cxx lib/replxx/src/util.cxx \
+  lib/replxx/src/windows.cxx \
+  lib/replxx/src/ConvertUTF.cpp lib/replxx/src/wcwidth.cpp \
+  -o mini-lisp.exe -lws2_32
+```
+
+## 使用方法
+
+### 交互式 REPL
+
+```bash
+./mini-lisp
+```
+
+### 执行脚本文件
+
+```bash
+./mini-lisp path/to/file.scm
+```
+
 ## REPL 功能
 
 交互式环境下支持以下功能：

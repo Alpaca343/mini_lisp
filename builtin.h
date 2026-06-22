@@ -46,7 +46,6 @@ ValuePtr modulo(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr equal(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr eqq(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr equalq(const std::vector<ValuePtr>& params, EvalEnv& env);
-bool isEqualValue(ValuePtr a, ValuePtr b); //equalq辅助函数
 ValuePtr greater(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr less(const std::vector<ValuePtr>& params, EvalEnv& env);
 ValuePtr greaterEqual(const std::vector<ValuePtr>& params, EvalEnv& env);

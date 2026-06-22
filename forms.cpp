@@ -17,12 +17,10 @@ const std::unordered_map<std::string, SpecialFormType*>& getSpecialForms() {
 }
 
 ValuePtr defineForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
-    /* if (args.size() != 2) {
-        throw LispError("define requires exactly 2 arguments");
-    }*/
     if (auto name = args[0]->asSymbol()) {
         if (args.size() != 2) {
-            throw LispError("define requires exactly 2 arguments");
+            throw LispError("define: wrong number of arguments (expected 2, got " +
+                            std::to_string(args.size()) + ")");
         }
         ValuePtr val = env.eval(args[1]);
         env.define(*name, val);
@@ -54,7 +52,8 @@ ValuePtr quoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 
 ValuePtr ifForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     if (args.size() != 3) {
-        throw LispError("if requires exactly 3 arguments");
+        throw LispError("if: wrong number of arguments (expected 3, got " +
+                        std::to_string(args.size()) + ")");
     }
     ValuePtr condition = env.eval(args[0]);
     bool isFalse =
@@ -120,10 +119,11 @@ static std::vector<std::string> extractParams(std::vector<ValuePtr> paramVec) {
 
 ValuePtr lambdaForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     if (args.size() < 2) {
-        throw LispError("Lambda needs at least 2 arguments");
+        throw LispError("lambda: wrong number of arguments (expected at least 2, got " +
+                        std::to_string(args.size()) + ")");
     }
     if (!args[0]->isPair() && !args[0]->isNil()) {
-        throw LispError("The first argument must be a list");
+        throw LispError("lambda: parameter list expected");
     }
 
     std::vector<ValuePtr> paramVec;
@@ -201,17 +201,18 @@ ValuePtr condForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 
 ValuePtr letForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     if (args.size() < 2) {
-        throw LispError("let: need at least 2 arguments");
+        throw LispError("let: wrong number of arguments (expected at least 2, got " +
+                        std::to_string(args.size()) + ")");
     }
 
     if (!args[0]->isPair()) {
-        throw LispError("let: the first argument must be a lsit");
+        throw LispError("let: the first argument must be a list");
     }
 
     std::vector<std::string> params;
     std::vector<ValuePtr> values;
 
-    for (const auto binding : args[0]->toVector()) {
+    for (const auto& binding : args[0]->toVector()) {
         if (!binding->isPair()) {
             throw LispError("let: the elements in first arg must be a list");
         }
@@ -250,7 +251,8 @@ ValuePtr letForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
 
 ValuePtr quasiquoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
     if (args.size() != 1) {
-        throw LispError("quasiquote: exactly 1 argument expected");
+        throw LispError("quasiquote: wrong number of arguments (expected 1, got " +
+                        std::to_string(args.size()) + ")");
     }
     return circleUnquote(args[0], env);
 }

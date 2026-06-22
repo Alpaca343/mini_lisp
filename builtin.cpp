@@ -61,7 +61,8 @@ ValuePtr print(const std::vector<ValuePtr>& params, EvalEnv& env) {
 //核心库
 ValuePtr applyf(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("apply: expect 2 arguments");
+        throw LispError("apply: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
 
     auto proc = params[0];
@@ -98,7 +99,8 @@ ValuePtr displayln(const std::vector<ValuePtr>& params, EvalEnv& env) {
 }
 ValuePtr error(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 1) {
-        throw LispError("error: expect 1 argument");
+        throw LispError("error: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
     }
     ValuePtr val = params[0];
     throw LispError(val->toString());
@@ -126,7 +128,8 @@ ValuePtr newline(const std::vector<ValuePtr>& params, EvalEnv& env) {
 }
 ValuePtr eval(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 1) {
-        throw LispError("eval: need 1 argument");
+        throw LispError("eval: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
     }
     return env.eval(params[0]);
 }
@@ -242,7 +245,7 @@ ValuePtr add(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr minus(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.empty()) {
-        throw LispError("minus: need at least 1 argument");
+        throw LispError("minus: wrong number of arguments (expected at least 1, got 0)");
     }
     auto x = params[0]->asNumber();
     if (!x) throw LispError("minus: expected number");
@@ -277,11 +280,11 @@ ValuePtr multiply(const std::vector<ValuePtr>& params, EvalEnv& env) {
 ValuePtr divide(const std::vector<ValuePtr>& params, EvalEnv& env) {
     auto result = 1.0;
     if (params.size() < 1) {
-        throw LispError("Too few arguments: " +
-                        std::to_string(params.size()) + " < 1");
+        throw LispError("divide: wrong number of arguments (expected 1 or 2, got " +
+                        std::to_string(params.size()) + ")");
     } else if (params.size() > 2) {
-        throw LispError("Too many arguments: " +
-                        std::to_string(params.size()) + " > 2");
+        throw LispError("divide: wrong number of arguments (expected 1 or 2, got " +
+                        std::to_string(params.size()) + ")");
     } else if (params.size() == 1) {
         auto num = params[0]->asNumber();
         if (!num) {
@@ -309,19 +312,18 @@ ValuePtr divide(const std::vector<ValuePtr>& params, EvalEnv& env) {
 }
 
 ValuePtr abs(const std::vector<ValuePtr>& params, EvalEnv& env) {
-    if (params.size() == 1) {
-        if(auto num = params[0]->asNumber()) {
-            if (*num >= 0) {
-                return std::make_shared<NumericValue>(*num);
-            } else {
-                return std::make_shared<NumericValue>(-*num);
-            }
+    if (params.size() != 1) {
+        throw LispError("abs: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
+    }
+    if(auto num = params[0]->asNumber()) {
+        if (*num >= 0) {
+            return std::make_shared<NumericValue>(*num);
         } else {
-            throw LispError("Expect a number");
+            return std::make_shared<NumericValue>(-*num);
         }
     } else {
-        throw LispError("Expect 1 argument, given " +
-                        std::to_string(params.size()) + " arguments");
+        throw LispError("abs: expected a number");
     }
 }
 
@@ -355,7 +357,7 @@ ValuePtr expt(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr quotient(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("expt: wrong number of arguments (expected 2, got " +
+        throw LispError("quotient: wrong number of arguments (expected 2, got " +
                         std::to_string(params.size()) + ")");
     }
     auto x = params[0]->asNumber();
@@ -371,7 +373,7 @@ ValuePtr quotient(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr remainder(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("expt: wrong number of arguments (expected 2, got " +
+        throw LispError("remainder: wrong number of arguments (expected 2, got " +
                         std::to_string(params.size()) + ")");
     }
     auto x = params[0]->asNumber();
@@ -478,9 +480,12 @@ ValuePtr zeroq(const std::vector<ValuePtr>& params, EvalEnv& env) {
     return unaryPredicate(params, "zero?", [](double x) { return x == 0.0; });
 }
 
+static bool isEqualValue(ValuePtr a, ValuePtr b);
+
 ValuePtr equalq(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("equal?: need 2 arguments");
+        throw LispError("equal?: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
 
     ValuePtr a = params[0];
@@ -488,7 +493,8 @@ ValuePtr equalq(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
     return std::make_shared<BooleanValue>(isEqualValue(a, b));
 }
-bool isEqualValue(ValuePtr a, ValuePtr b) {
+
+static bool isEqualValue(ValuePtr a, ValuePtr b) {
     if (a == b) return true;
     if (a->isNumber() && b->isNumber()) {
         return *a->asNumber() == *b->asNumber();
@@ -565,23 +571,25 @@ ValuePtr notf(const std::vector<ValuePtr>& params, EvalEnv& env) {
 // 对子与列表操作库
 ValuePtr car(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 1) {
-        throw LispError("car: expect 1 argument");
+        throw LispError("car: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
     }
     if (auto pair = std::dynamic_pointer_cast<PairValue>(params[0])) {
         return pair->getLeft();
     } else {
-        throw LispError("expect a pair");
+        throw LispError("car: expected a pair");
     }
 }
 
 ValuePtr cdr(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 1) {
-        throw LispError("cdr: expect 1 argument");
+        throw LispError("cdr: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
     }
     if (auto pair = std::dynamic_pointer_cast<PairValue>(params[0])) {
         return pair->getRight();
     } else {
-        throw LispError("expect a pair");
+        throw LispError("cdr: expected a pair");
     }
 }
 
@@ -606,7 +614,8 @@ ValuePtr append(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr length(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 1) {
-        throw LispError("length: expect 1 argument");
+        throw LispError("length: wrong number of arguments (expected 1, got " +
+                        std::to_string(params.size()) + ")");
     }
 
     ValuePtr arg = params[0];
@@ -627,7 +636,8 @@ ValuePtr cons(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() == 2) {
         return std::make_shared<PairValue>(params[0], params[1]);
     } else {
-        throw LispError("cons: need 2 arguments");
+        throw LispError("cons: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
 }
 
@@ -640,7 +650,8 @@ ValuePtr list(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr map(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("map: need 2 arguments");
+        throw LispError("map: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
 
     ValuePtr proc = params[0];
@@ -659,7 +670,8 @@ ValuePtr map(const std::vector<ValuePtr>& params, EvalEnv& env) {
 
 ValuePtr filter(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("filter: need 2 arguments");
+        throw LispError("filter: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
     ValuePtr proc = params[0];
     ValuePtr list = params[1];
@@ -683,7 +695,8 @@ ValuePtr filter(const std::vector<ValuePtr>& params, EvalEnv& env) {
 }
 ValuePtr reducef(const std::vector<ValuePtr>& params, EvalEnv& env) {
     if (params.size() != 2) {
-        throw LispError("reduce: expect 2 arguments");
+        throw LispError("reduce: wrong number of arguments (expected 2, got " +
+                        std::to_string(params.size()) + ")");
     }
 
     ValuePtr proc = params[0];
