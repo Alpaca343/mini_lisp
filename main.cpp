@@ -36,7 +36,7 @@ static void evalf(EvalEnv& env, Parser& parser) {
 }
 
 int main(int argc, char* argv[]) {
-    //RJSJ_TEST(TestCtx, Lv2, Lv3, Lv4, Lv5, Lv5Extra, Lv6, Lv7, Lv7Lib, Sicp);
+    RJSJ_TEST(TestCtx, Lv2, Lv3, Lv4, Lv5, Lv5Extra, Lv6, Lv7, Lv7Lib, Sicp);
     if (argc == 1) {
         runRepl(EvalEnv::createGlobal());
     } else if (argc == 2) {

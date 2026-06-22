@@ -209,7 +209,7 @@ ValuePtr letForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
         throw LispError("let: the first argument must be a list");
     }
 
-    std::vector<std::string> params;
+    std::vector<ValuePtr> params;
     std::vector<ValuePtr> values;
 
     for (const auto& binding : args[0]->toVector()) {
@@ -220,33 +220,25 @@ ValuePtr letForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
         if (bindingVec.size() != 2) {
             throw LispError("let: each binding must have exactly 2 elements");
         }
-        if (auto name = bindingVec[0]->asSymbol()) {
-            params.push_back(*name);
+        if (bindingVec[0]->asSymbol()) {
+            params.push_back(bindingVec[0]);
         } else {
             throw LispError("let: parameter must be a symbol");
         }
         values.push_back(env.eval(bindingVec[1]));
     }
-    std::vector<ValuePtr> paramsValue;
-    for (auto strval : params) {
-        paramsValue.push_back(std::make_shared<SymbolValue>(strval));
-    }
 
     std::vector<ValuePtr> lambdaItems;
     lambdaItems.push_back(std::make_shared<SymbolValue>("lambda"));
-    lambdaItems.push_back(makeList(paramsValue));
+    lambdaItems.push_back(makeList(params));
     for (size_t i = 1; i < args.size(); ++i) {
         lambdaItems.push_back(args[i]);
     }
 
     auto lambda = env.eval(makeList(lambdaItems));
 
-    std::vector<ValuePtr> lambdaArgs;
-    for (const auto& val : values) {
-        lambdaArgs.push_back(val);
-    }
     auto lambdaPtr = std::static_pointer_cast<LambdaValue>(lambda);
-    return lambdaPtr->apply(lambdaArgs);
+    return lambdaPtr->apply(values);
 }
 
 ValuePtr quasiquoteForm(const std::vector<ValuePtr>& args, EvalEnv& env) {
